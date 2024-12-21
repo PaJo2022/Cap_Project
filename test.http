@@ -1,0 +1,115 @@
+### Get all Customers
+GET http://localhost:4004/api/data/customers/Customers
+Content-Type: application/json
+
+###
+
+### Get a specific Customer by ID
+GET http://localhost:4004/api/data/customers/Customers(1)
+Content-Type: application/json
+
+###
+
+### Get all Orders
+GET http://localhost:4004/api/data/customers/Orders
+Content-Type: application/json
+
+###
+
+### Get a specific Order by ID
+GET http://localhost:4004/odata/v4/customer/Orders(22222222-2222-2222-2222-222222222222)
+Content-Type: application/json
+
+###
+
+
+
+###
+
+### Create a new Customer
+POST http://localhost:4004/api/data/customers/Customers
+Content-Type: application/json
+
+{
+  "ID": "1",
+  "name": "John Doe",
+  "contact": "johndoe@example.com"
+}
+
+###
+
+
+###
+
+### Create a new OrderItem
+POST http://localhost:4004/odata/v4/customer/OrderItems
+Content-Type: application/json
+
+{
+  "ID": "4",
+  "productName": "Mobile",
+  "quantity": 20,
+  "unitPrice": 7500.00,
+  "order_ID": "22222222-2222-2222-2222-222222222222"
+}
+
+###
+
+### Update an Order status
+PATCH http://localhost:4004/odata/v4/customer/Orders({{orderID}})
+Content-Type: application/json
+
+{
+  "status": "Processed"
+}
+
+###
+
+### Delete an OrderItem by ID
+DELETE http://localhost:4004/odata/v4/customer/OrderItems({{orderItemID}})
+Content-Type: application/json
+
+
+### Get OrderItems for a Customer
+GET http://localhost:4004/getData
+Content-Type: application/json
+
+
+###
+POST http://localhost:4004/api/data/customers/checkOrderItemName
+Content-Type: application/json
+
+
+###
+POST http://localhost:4004/api/data/customers/checkOrderItemName
+Content-Type: application/json
+
+{
+  "itemName": "Item"
+}
+
+
+###
+POST http://localhost:4004/api/data/customers/changeOrderStatus
+Content-Type: application/json
+
+{
+  "orderId":"1",
+  "status": "Delivered"
+}
+
+
+### Get all OrderItems
+GET http://localhost:4004/api/data/customers/Orders
+Content-Type: application/json
+### Create a new Order
+POST http://localhost:4004/api/data/customers/Orders
+Content-Type: application/json
+
+{
+  "ID": "1",
+  "orderDate": "2024-12-20",
+  "totalAmount": 150.50,
+  "customer_ID": "11111111-1111-1111-1111-111111111111",
+  "status": "Created"
+}
