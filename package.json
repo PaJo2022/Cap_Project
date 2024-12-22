@@ -21,10 +21,18 @@
   },
   "cds": {
     "requires": {
-      "auth": "mocked",
-      "[production]": {
-        "auth": "mocked",
-        "db": "hana"
+      "auth": {
+        "[development]": {
+          "strategy": "mock",
+          "users": {
+            "manager": {
+              "roles": [
+                "OrderManager"
+              ]
+            }
+          }
+        },
+        "[production]":"xsuaa"
       }
     },
     "sql": {

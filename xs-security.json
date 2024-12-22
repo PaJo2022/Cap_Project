@@ -1,15 +1,13 @@
 {
   "xsappname": "customer-service-app",
-  "roles": [
+  "scopes":[
     {
-      "name": "OrderManager",
-      "description": "Can manage orders",
-      "scope-references": ["$XSAPPNAME.OrderManager"]
+      "name":"$XSAPPNAME.authenticated-user",
+      "description":"Authenticated User"
     },
     {
-      "name": "authenticated-user",
-      "description": "Can read all entities",
-      "scope-references": ["$XSAPPNAME.User"]
+      "name":"$XSAPPNAME.OrderManager",
+      "description":"OrderManager"
     }
   ]
 }

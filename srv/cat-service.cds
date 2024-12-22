@@ -8,17 +8,31 @@ service CustomerService {
 //     ]
     entity Customers as projection on my.Customer;         // Expose the Customer entity
 
-    // @restrict: [
-    //     { grant: 'READ', to: 'authenticated-user' },
-    //     { grant: ['CREATE', 'UPDATE', 'DELETE'], to: 'OrderManager' }
-    // ]
-    entity Orders as projection on my.Order;               // Expose the Order entity
+   
+entity Orders @(restrict: [
+    {
+        grant: ['READ'],
+        to: 'authenticated-user'
+    },
+    {
+        grant: ['CREATE', 'READ', 'UPDATE', 'DELETE'],
+        to: 'OrderManager'
+    }
+]) as projection on my.Order;
 
-    // @restrict: [
-    //     { grant: 'READ', to: 'authenticated-user' },
-    //     { grant: ['CREATE', 'UPDATE', 'DELETE'], to: 'OrderManager' }
-    // ]
-    entity OrderItems as projection on my.OrderItem;  
+
+    
+    entity OrderItems @(restrict: [
+    {
+        grant: ['READ'],
+        to: 'authenticated-user'
+    },
+    {
+        grant: ['CREATE', 'READ', 'UPDATE', 'DELETE'],
+        to: 'OrderManager'
+    }
+]) as projection on my.OrderItem;  
+
 
      action getOrderItemsForCustomer(customerID: UUID) returns array of {
         ID: UUID;
@@ -32,5 +46,12 @@ service CustomerService {
         CustomerContact: String;
     };
     action checkOrderItemName(itemName : String) returns Boolean;
+    
+    @(restrict: [
+    {
+        grant: ['CREATE', 'READ', 'UPDATE', 'DELETE'],
+        to: 'OrderManager'
+    }
+])
     action changeOrderStatus(orderId:String,status : String(20)) returns Orders;
 }
