@@ -28,3 +28,11 @@ entity OrderItem {
     unitPrice : Decimal(10, 2);       // Price per unit of the product
     order : Association to Order;     // Reference to the Order entity
 }
+
+entity  OrderStatusChangeLogs{
+    key ID : UUID;
+    orderId : String;
+    oldStatus : String;
+    newStatus : String;
+    timeStamp : Timestamp;
+}

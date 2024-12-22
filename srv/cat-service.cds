@@ -2,11 +2,16 @@ using my.customer as my from '../db/schema';
 
 @path : '/api/data/customers'
 service CustomerService {
-//   @restrict: [
-//         { grant: 'READ', to: 'authenticated-user' },
-//         { grant: ['CREATE', 'UPDATE', 'DELETE'], to: 'OrderManager' }
-//     ]
-    entity Customers as projection on my.Customer;         // Expose the Customer entity
+    entity Customers @(restrict: [
+    {
+        grant: ['READ'],
+        to: 'authenticated-user'
+    },
+    {
+        grant: ['CREATE', 'READ', 'UPDATE', 'DELETE'],
+        to: 'OrderManager'
+    }
+]) as projection on my.Customer;         // Expose the Customer entity
 
    
 entity Orders @(restrict: [
@@ -54,4 +59,7 @@ entity Orders @(restrict: [
     }
 ])
     action changeOrderStatus(orderId:String,status : String(20)) returns Orders;
+
+    
+    entity OrderStatusChangeLogs as projection on my.OrderStatusChangeLogs; 
 }

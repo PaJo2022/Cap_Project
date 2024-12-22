@@ -3,7 +3,7 @@ const cds = require('@sap/cds');
 class CustomerService extends cds.ApplicationService {
   /** Registering custom event handlers */
   init() {
-    const { Customers,Orders } = this.entities;
+    const { Customers,OrderStatusChangeLogs } = this.entities;
 
     // Register a custom after hook for validation
     this.after("READ", Customers, async (req) => this.onRead(req));
@@ -16,9 +16,34 @@ class CustomerService extends cds.ApplicationService {
 
     this.on("changeOrderStatus", async (req) => this.changeOrderStatusHandler(req));
 
-    this.on('OrderStatusChanged',async (data) => {
-      console.log('Order status changed in service:', data.data);
-    });
+    this.on('OrderStatusChanged', async (data, req) => {
+      console.log('Order status changed in service:', data);
+  
+      // Extract relevant data
+      const { orderId, oldStatus, newStatus, timeStamp } = data.data;
+  
+      // Validate data (optional, but recommended)
+      if (!orderId || !oldStatus || !newStatus || !timeStamp) {
+        console.error("Missing required fields for OrderStatusChangeLogs") 
+        // req.error(400, 'Missing required fields for OrderStatusChangeLogs');
+          return;
+      }
+  
+      // Insert into OrderStatusChangeLogs
+      try {
+          await INSERT.into(OrderStatusChangeLogs).entries({
+              ID: cds.utils.uuid(), // Generate a unique ID
+              orderId: orderId,
+              oldStatus: oldStatus,
+              newStatus: newStatus,
+              timeStamp: timeStamp,
+          });
+          console.log('Log stored successfully in OrderStatusChangeLogs');
+      } catch (error) {
+          console.error('Error storing log in OrderStatusChangeLogs:', error);
+          req.error(500, 'Failed to store the order status change log');
+      }
+  });
 
 
    // this.on("READ", Orders, async (req) => this.onRead(req));
@@ -82,10 +107,10 @@ class CustomerService extends cds.ApplicationService {
     await cds.tx(req).run(UPDATE('my_customer_Order').set({ status }).where({ ID: orderId }));
 
     this.emit('OrderStatusChanged', {
-      ID: orderId,
+      orderId: orderId,
       oldStatus,
       newStatus,
-      timestamp: new Date().toISOString(),
+      timeStamp: new Date().toISOString(),
     });
 
     // Return the updated order
