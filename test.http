@@ -1,4 +1,17 @@
 
+### Create a new Customer
+POST http://localhost:4004/odata/v4/customer/OrderItems
+Content-Type: application/json
+
+{
+  "ID": "4",
+  "productName": "Mobile",
+  "quantity": 20,
+  "unitPrice": 7500.00,
+  "order_ID": "22222222-2222-2222-2222-222222222222"
+}
+
+
 
 ### Create a new OrderItem
 POST http://localhost:4004/odata/v4/customer/OrderItems

@@ -2,34 +2,25 @@ const cds = require('@sap/cds');
 
 class CustomerService extends cds.ApplicationService {
   /** Registering custom event handlers */
-  init() {
+  async init() {
+    this.S4bupa = await cds.connect.to('API_BUSINESS_PARTNER');
+  this.remoteService = await cds.connect.to('RemoteService');
     const { Customers,OrderStatusChangeLogs } = this.entities;
 
-    // Register a custom after hook for validation
-    this.after("READ", Customers, async (req) => this.onRead(req));
+  
+   this.on("READ", Customers, async (req) => this.onCustomerRead(req));
+   this.on("CREATE", Customers, async (req) => this.onCustomerCreation(req));
 
-    // Register a custom on handler for READ operation
-    this.on("READ", Customers, async (req) => this.onRead(req));
-
-    // Register the custom action handler
     this.on("checkOrderItemName", async (req) => this.checkOrderItemNameHandler(req));
 
     this.on("changeOrderStatus", async (req) => this.changeOrderStatusHandler(req));
 
     this.on('OrderStatusChanged', async (data, req) => {
-      console.log('Order status changed in service:', data);
-  
-      // Extract relevant data
       const { orderId, oldStatus, newStatus, timeStamp } = data.data;
-  
-      // Validate data (optional, but recommended)
       if (!orderId || !oldStatus || !newStatus || !timeStamp) {
         console.error("Missing required fields for OrderStatusChangeLogs") 
-        // req.error(400, 'Missing required fields for OrderStatusChangeLogs');
           return;
       }
-  
-      // Insert into OrderStatusChangeLogs
       try {
           await INSERT.into(OrderStatusChangeLogs).entries({
               ID: cds.utils.uuid(), // Generate a unique ID
@@ -46,7 +37,6 @@ class CustomerService extends cds.ApplicationService {
   });
 
 
-   // this.on("READ", Orders, async (req) => this.onRead(req));
 
  
     
@@ -56,9 +46,40 @@ class CustomerService extends cds.ApplicationService {
   
 
   /** Custom Validation */
-  async onRead(req) {
-    // Accessing the request data
-    console.log("WROKED"); // Logs the request data (filter, etc.)
+  async onCustomerRead(req) {
+    const { BusinessPartner } = this.remoteService.entities;
+
+    // Expands are required as the runtime does not support path expressions for remote services
+    const result = await this.S4bupa.run(
+      SELECT.from(BusinessPartner)
+    );
+    
+
+
+  
+    return result;
+  }
+
+  async onCustomerCreation(req) {
+   
+
+    const { BusinessPartner } = this.remoteService.entities;
+    const {name} = req.data
+    // Expands are required as the runtime does not support path expressions for remote services
+    const result = await this.S4bupa.run(
+      SELECT.from(BusinessPartner)
+        .where({ BusinessPartnerFullName: name })
+    );
+    
+    if(result.length == 0){
+      console.log("No User Found")
+      return
+    }
+  
+
+    console.log("after result", result);
+    return result;
+
   }
 
   /** Custom Action Handler */
@@ -75,8 +96,8 @@ class CustomerService extends cds.ApplicationService {
     const validItemNames = ["ItemA", "ItemB", "ItemC"]; // Example valid names
     const isValid = validItemNames.includes(itemName);
 
-    console.log(`Is item name valid? ${isValid}`);
-    return isValid; // Return the validation result
+    console.log(`Is item name valid? ${Customers}`);
+    return true; // Return the validation result
   }
 
   async changeOrderStatusHandler(req) {

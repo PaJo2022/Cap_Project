@@ -2,6 +2,8 @@ using my.customer as my from '../db/schema';
 
 @path : '/api/data/customers'
 service CustomerService {
+
+
     entity Customers @(restrict: [
     {
         grant: ['READ'],
@@ -62,4 +64,8 @@ entity Orders @(restrict: [
 
     
     entity OrderStatusChangeLogs as projection on my.OrderStatusChangeLogs; 
+
+
+
+     
 }

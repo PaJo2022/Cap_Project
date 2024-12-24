@@ -1,0 +1,13 @@
+
+### Create a new Customer
+POST http://localhost:4004/api/data/customers/Customers
+Content-Type: application/json
+Content-Type: application/json
+Authorization: Basic manager:
+
+{
+  "ID": "2",
+  "name": "User 1",
+  "contact": "7980511342"
+}
+
