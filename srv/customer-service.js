@@ -5,12 +5,12 @@ class CustomerService extends cds.ApplicationService {
   async init() {
     this.S4bupa = await cds.connect.to('API_BUSINESS_PARTNER');
   this.remoteService = await cds.connect.to('RemoteService');
-    const { Customers,OrderStatusChangeLogs } = this.entities;
+    const { Orders,Customers,OrderStatusChangeLogs } = this.entities;
 
   
-   this.on("READ", Customers, async (req) => this.onCustomerRead(req));
-   this.on("CREATE", Customers, async (req) => this.onCustomerCreation(req));
-
+  // this.on("READ", Customers, async (req) => this.onCustomerRead(req));
+   //this.before("CREATE", Customers, async (req) => this.onCustomerCreation(req));
+   this.before("CREATE", Orders, async (req) => this.validateCustomerAndCreateOrder(req));
     this.on("checkOrderItemName", async (req) => this.checkOrderItemNameHandler(req));
 
     this.on("changeOrderStatus", async (req) => this.changeOrderStatusHandler(req));
@@ -61,7 +61,7 @@ class CustomerService extends cds.ApplicationService {
   }
 
   async onCustomerCreation(req) {
-   
+
 
     const { BusinessPartner } = this.remoteService.entities;
     const {name} = req.data
@@ -73,12 +73,45 @@ class CustomerService extends cds.ApplicationService {
     
     if(result.length == 0){
       console.log("No User Found")
+      req.error(400, `Customer with name "${name}" not found.`);
       return
     }
   
 
     console.log("after result", result);
     return result;
+
+  }
+
+  async validateCustomerAndCreateOrder(req) {
+
+    const { Customers } = this.entities;
+    const { BusinessPartner } = this.remoteService.entities;
+    const {customer_ID} = req.data
+    // Expands are required as the runtime does not support path expressions for remote services
+    console.log(customer_ID)
+    const customerDetails = await  SELECT.one.from(Customers)
+    .where({ ID: customer_ID })
+
+    if (!customerDetails) {
+      req.error(400, `No Customer Found.`)
+      return
+    }
+
+    const {name} = customerDetails
+    const result = await this.S4bupa.run(
+      SELECT.from(BusinessPartner)
+        .where({ BusinessPartnerFullName: name })
+    );
+    
+    if(result.length == 0){
+      console.log("No User Found")
+      req.error(400, `Customer with name "${name}" not found.`);
+      return
+    }
+  
+
+    return false;
 
   }
 

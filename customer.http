@@ -2,12 +2,11 @@
 ### Create a new Customer
 POST http://localhost:4004/api/data/customers/Customers
 Content-Type: application/json
-Content-Type: application/json
 Authorization: Basic manager:
 
 {
-  "ID": "2",
-  "name": "User 1",
+  "ID": "1",
+  "name": "US Large Cycles 2",
   "contact": "7980511342"
 }
 
