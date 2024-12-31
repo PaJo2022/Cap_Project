@@ -27,6 +27,7 @@ modules:
     requires:
       - name: CapProject-auth
       - name: CapProject-db
+      - name: demo-destination
 
   - name: CapProject-db-deployer
     type: hdb
@@ -67,3 +68,12 @@ resources:
     parameters:
       service: hana
       service-plan: hdi-shared
+
+  - name: demo-destination
+    type: org.cloudfoundry.existing-service
+    parameters:
+     service-name: demo-destination
+   
+
+
+

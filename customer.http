@@ -2,11 +2,19 @@
 ### Create a new Customer
 POST http://localhost:4004/api/data/customers/Customers
 Content-Type: application/json
-Authorization: Basic manager:
+Authorization: Basic manager:123
 
 {
   "ID": "1",
   "name": "US Large Cycles 2",
   "contact": "7980511342"
 }
+
+### Get All Customers
+
+GET https://f4929f9atrial-dev-capproject-srv.cfapps.us10-001.hana.ondemand.com/api/data/customers/Customers
+Content-Type: application/json
+Authorization: Basic manager:
+
+
 

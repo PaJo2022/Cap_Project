@@ -34,7 +34,8 @@
             "manager": {
               "roles": [
                 "OrderManager"
-              ]
+              ],
+              "password": "123"
             }
           }
         },
@@ -47,15 +48,38 @@
           "credentials": {
             "url": "https://sandbox.api.sap.com/s4hanacloud/sap/opu/odata/sap/API_BUSINESS_PARTNER",
             "headers": {
-                "APIKey": "4gAEJta3itBlIz6gGgrPdsuCWlhAPw6y"
+              "APIKey": "4gAEJta3itBlIz6gGgrPdsuCWlhAPw6y"
             }
           }
         },
         "[production]": {
           "credentials": {
-            "destination": "sfsfDest"
+            "destination": "API_BUSINESS_PARTNER"
           }
         }
+      },
+      "API_SALES_ORDER_SRV": {
+        "kind": "odata-v2",
+        "model": "srv/external/API_SALES_ORDER_SRV",
+        "[development]": {
+          "credentials": {
+            "url": "https://sandbox.api.sap.com/s4hanacloud/sap/opu/odata/sap/API_SALES_ORDER_SRV",
+            "headers": {
+              "APIKey": "4gAEJta3itBlIz6gGgrPdsuCWlhAPw6y"
+            }
+          }
+        },
+        "[production]": {
+          "credentials": {
+            "destination": "API_BUSINESS_PARTNER"
+          }
+        }
+      },
+      "[production]": {
+        "db": "hana"
+      },
+      "uaa": {
+        "kind": "xsuaa"
       }
     },
     "sql": {

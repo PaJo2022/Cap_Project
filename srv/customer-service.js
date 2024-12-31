@@ -4,12 +4,13 @@ class CustomerService extends cds.ApplicationService {
   /** Registering custom event handlers */
   async init() {
     this.S4bupa = await cds.connect.to('API_BUSINESS_PARTNER');
+    this.S4SOrder = await cds.connect.to('API_SALES_ORDER_SRV');
   this.remoteService = await cds.connect.to('RemoteService');
     const { Orders,Customers,OrderStatusChangeLogs } = this.entities;
 
   
   // this.on("READ", Customers, async (req) => this.onCustomerRead(req));
-   //this.before("CREATE", Customers, async (req) => this.onCustomerCreation(req));
+  // this.after("CREATE", Customers, async (req) => this.onCustomerCreation(req));
    this.before("CREATE", Orders, async (req) => this.validateCustomerAndCreateOrder(req));
     this.on("checkOrderItemName", async (req) => this.checkOrderItemNameHandler(req));
 
@@ -47,11 +48,11 @@ class CustomerService extends cds.ApplicationService {
 
   /** Custom Validation */
   async onCustomerRead(req) {
-    const { BusinessPartner } = this.remoteService.entities;
+    const { SalesOrder } = this.remoteService.entities;
 
     // Expands are required as the runtime does not support path expressions for remote services
-    const result = await this.S4bupa.run(
-      SELECT.from(BusinessPartner)
+    const result = await this.S4SOrder.run(
+      SELECT.from(SalesOrder).where({ SalesOrder: "1" })
     );
     
 
@@ -88,8 +89,7 @@ class CustomerService extends cds.ApplicationService {
     const { Customers } = this.entities;
     const { BusinessPartner } = this.remoteService.entities;
     const {customer_ID} = req.data
-    // Expands are required as the runtime does not support path expressions for remote services
-    console.log(customer_ID)
+
     const customerDetails = await  SELECT.one.from(Customers)
     .where({ ID: customer_ID })
 
