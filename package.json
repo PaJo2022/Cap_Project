@@ -23,13 +23,16 @@
     "@sap/cds-dk": "^8"
   },
   "scripts": {
-    "start": "cds-serve"
+    "start": "cds-serve",
+    "deploy:cf": "cf deploy mta_archives/CapProject_1.10.1.mtar",
+    "create-auth-service": "cf create-service xsuaa application CapProject-auth -c xs-security.json",
+    "delete-auth-service":"cf delete-service CapProject-auth"
   },
   "cds": {
     "requires": {
       "auth": {
         "[development]": {
-          "strategy": "mock",
+          "strategy": "mocked",
           "users": {
             "manager": {
               "roles": [
@@ -71,7 +74,7 @@
         },
         "[production]": {
           "credentials": {
-            "destination": "API_BUSINESS_PARTNER"
+            "destination": "API_SALES_ORDER_SRV"
           }
         }
       },
@@ -80,10 +83,16 @@
       },
       "uaa": {
         "kind": "xsuaa"
+      },
+      "CustomerService": {
+        "kind": "srv",
+        "model": "srv/customer-service"
+      }
       }
     },
     "sql": {
       "native_hana_associations": false
     }
   }
-}
+
+    

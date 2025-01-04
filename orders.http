@@ -1,0 +1,57 @@
+
+
+### Create a new OrderItem
+POST http://localhost:4004/api/data/orders/OrderItems
+Content-Type: application/json
+Authorization: Basic manager:123
+{
+  "ID": "4",
+  "productName": "Mobile",
+  "quantity": 20,
+  "unitPrice": 7500.00,
+  "order_ID": "1"
+}
+
+
+### Change Order Status
+POST http://localhost:4004/api/data/orders/changeOrderStatus
+Content-Type: application/json
+Authorization: Basic manager:123
+
+{
+  "orderId":"12",
+  "status": "Processed"
+}
+
+
+### Get all OrderItems
+GET http://localhost:4004/api/data/orders/Orders
+Authorization: Basic joe:
+### Create a new Order
+POST http://localhost:4004/api/data/orders/Orders
+Content-Type: application/json
+Authorization: Basic manager:123
+
+{
+  "ID": "2",
+  "orderDate": "2024-12-20",
+  "totalAmount": 150.50,
+  "customer_ID": "1",
+  "status": "Created"
+}
+
+
+
+### Order Status Change Logs
+GET http://localhost:4004/api/data/orders/OrderStatusChangeLogs
+
+###
+POST http://localhost:4004/api/data/orders/CreateSalesOrder
+Content-Type: application/json
+
+{
+    "SalesOrderType": "OR",
+    "CustomerID": "123456",
+    "OrderDate": "2024-12-20",
+    "NetAmount": 1500.00
+}

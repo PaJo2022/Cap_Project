@@ -1,6 +1,6 @@
 _schema-version: 3.3.0
 ID: CapProject
-version: 1.0.0
+version: 1.10.1
 description: "A simple CAP project."
 parameters:
   enable-parallel-deployments: true
@@ -27,7 +27,7 @@ modules:
     requires:
       - name: CapProject-auth
       - name: CapProject-db
-      - name: demo-destination
+      - name: cap_project_destination
 
   - name: CapProject-db-deployer
     type: hdb
@@ -52,6 +52,7 @@ modules:
           url: ~{srv-url}
           forwardAuthToken: true
       - name: CapProject-auth
+      - name: cap_project_destination
 
 resources:
   - name: CapProject-auth
@@ -61,19 +62,15 @@ resources:
       service-plan: application
       path: ./xs-security.json
       config:
-        xsappname: CapProject-${org}-${space}
+        xsappname: CapProject-Auth-App
         tenant-mode: dedicated
   - name: CapProject-db
     type: com.sap.xs.hdi-container
     parameters:
       service: hana
       service-plan: hdi-shared
-
-  - name: demo-destination
-    type: org.cloudfoundry.existing-service
+  - name: cap_project_destination
+    type: org.cloudfoundry.managed-service
     parameters:
-     service-name: demo-destination
-   
-
-
-
+      service: destination
+      service-plan: lite

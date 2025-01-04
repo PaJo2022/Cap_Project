@@ -1,13 +1,17 @@
-{
-  "xsappname": "customer-service-app",
-  "scopes":[
-    {
-      "name":"$XSAPPNAME.authenticated-user",
-      "description":"Authenticated User"
-    },
-    {
-      "name":"$XSAPPNAME.OrderManager",
-      "description":"OrderManager"
-    }
-  ]
+{  
+  "xsappname": "CapProject-Auth-App",
+  "tenant-mode": "dedicated",
+  "scopes": [],
+  "attributes": [],
+  "role-templates": [],
+  "oauth2-configuration": {
+    "credential-types": [
+      "binding-secret",
+      "x509"
+    ],
+    "redirect-uris": [
+      "https://*.cfapps.us10-001.hana.ondemand.com/**",
+      "https://*.cfapps.us10-001.hana.ondemand.com/login/callback"
+    ]
+  }
 }
