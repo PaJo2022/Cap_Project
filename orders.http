@@ -3,7 +3,8 @@
 ### Create a new OrderItem
 POST http://localhost:4004/api/data/orders/OrderItems
 Content-Type: application/json
-Authorization: Basic manager:123
+Authorization: Basic system:
+
 {
   "ID": "4",
   "productName": "Mobile",

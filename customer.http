@@ -14,7 +14,7 @@ Authorization: Basic manager:123
 
 GET http://localhost:4004/api/data/customers/Customers
 Content-Type: application/json
-Authorization: Basic system:
+Authorization: Basic manager:123
 
 
 

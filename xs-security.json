@@ -1,9 +1,23 @@
-{  
+{
   "xsappname": "CapProject-Auth-App",
   "tenant-mode": "dedicated",
-  "scopes": [],
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.order-manager",
+      "description": "order-manager"
+    }
+  ],
   "attributes": [],
-  "role-templates": [],
+  "role-templates": [
+    {
+      "name": "order-manager",
+      "description": "generated",
+      "scope-references": [
+        "$XSAPPNAME.order-manager"
+      ],
+      "attribute-references": []
+    }
+  ],
   "oauth2-configuration": {
     "credential-types": [
       "binding-secret",

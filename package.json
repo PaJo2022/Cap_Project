@@ -24,9 +24,10 @@
   },
   "scripts": {
     "start": "cds-serve",
-    "deploy:cf": "cf deploy mta_archives/CapProject_1.10.1.mtar",
+    "deploy:cf": "cf deploy mta_archives/CapProject_1.10.6.mtar",
     "create-auth-service": "cf create-service xsuaa application CapProject-auth -c xs-security.json",
-    "delete-auth-service":"cf delete-service CapProject-auth"
+    "delete-auth-service": "cf delete-service CapProject-auth",
+    "generate-security-file": "cds compile srv/ --to xsuaa > xs-security.json"
   },
   "cds": {
     "requires": {
@@ -36,7 +37,7 @@
           "users": {
             "manager": {
               "roles": [
-                "OrderManager"
+                "order-manager"
               ],
               "password": "123"
             }
@@ -83,16 +84,10 @@
       },
       "uaa": {
         "kind": "xsuaa"
-      },
-      "CustomerService": {
-        "kind": "srv",
-        "model": "srv/customer-service"
       }
-      }
-    },
-    "sql": {
-      "native_hana_associations": false
     }
+  },
+  "sql": {
+    "native_hana_associations": false
   }
-
-    
+}

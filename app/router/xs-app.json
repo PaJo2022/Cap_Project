@@ -14,7 +14,7 @@
     {
       "source": "^/(.*)$",
       "destination": "srv-api",
-      "csrfProtection": true,
+      "csrfProtection": false,
       "authenticationType": "xsuaa"
     }
   ]

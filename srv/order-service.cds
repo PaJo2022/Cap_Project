@@ -6,17 +6,40 @@ service OrderService {
 
     
 entity Orders  as projection on my.Order;
+entity OrderItems  as projection on my.OrderItem;  
+@require:'order-manager'
+action changeOrderStatus(orderId:String,status : String(20)) returns Orders;
+entity OrderStatusChangeLogs as projection on my.OrderStatusChangeLogs;
+annotate Orders with @restrict: [
+     {
+        grant: ['READ'], 
+        to: 'authenticated-user'
+    },
+    {
+        grant: ['READ','CREATE', 'UPDATE', 'DELETE'], 
+        to: 'order-manager'
+    }
+   ]; 
+annotate OrderItems with @restrict: [
+     {
+        grant: ['READ'], 
+        to: 'authenticated-user'
+    },
+    {
+        grant: ['READ','CREATE', 'UPDATE', 'DELETE'], 
+        to: 'order-manager'
+    }
+   ];  
 
-
-    
-    entity OrderItems  as projection on my.OrderItem;  
-
-
-    
-    
-    action changeOrderStatus(orderId:String,status : String(20)) returns Orders;
-
-    
-    entity OrderStatusChangeLogs as projection on my.OrderStatusChangeLogs;
+annotate OrderStatusChangeLogs with @restrict: [
+     {
+        grant: ['READ'], 
+        to: 'authenticated-user'
+    },
+    {
+        grant: ['READ','CREATE', 'UPDATE', 'DELETE'], 
+        to: 'order-manager'
+    }
+   ];      
 
 }

@@ -69,7 +69,7 @@ class OrderService extends cds.ApplicationService {
     
       async changeOrderStatusHandler(req) {
         const { orderId,status } = req.data; // Retrieve the status from the action input
-    
+        const { Order } = cds.entities('my.order')
         if (!status || status.trim() === "") {
           // Return an error if the status is empty
           throw new Error("Invalid status value.");
@@ -77,11 +77,12 @@ class OrderService extends cds.ApplicationService {
     
       
         // Retrieve the order from the database based on the order ID
-        const order = await cds.tx(req).run(SELECT.from('my_customer_Order').where({ ID: orderId }));
+        const order = await cds.tx(req).run(SELECT.from(Order).where({ ID: orderId }));
     
         if (order.length === 0) {
-          throw new Error(`Order with ID ${orderId} not found.`);
-        }
+           req.error(`Order with ID ${orderId} not found.`);
+           return;s
+          }
     
     
         const oldStatus = order[0].status;
