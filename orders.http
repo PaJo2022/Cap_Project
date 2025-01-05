@@ -20,8 +20,8 @@ Content-Type: application/json
 Authorization: Basic manager:123
 
 {
-  "orderId":"12",
-  "status": "Processed"
+  "orderId":"f98e5d54-8c61-4bdc-b8ac-30746c473a7f",
+  "status": "Delivered"
 }
 
 
@@ -34,7 +34,7 @@ Content-Type: application/json
 Authorization: Basic manager:123
 
 {
-  "ID": "2",
+  "ID": "1",
   "orderDate": "2024-12-20",
   "totalAmount": 150.50,
   "customer_ID": "1",
@@ -45,6 +45,8 @@ Authorization: Basic manager:123
 
 ### Order Status Change Logs
 GET http://localhost:4004/api/data/orders/OrderStatusChangeLogs
+Content-Type: application/json
+Authorization: Basic manager:123
 
 ###
 POST http://localhost:4004/api/data/orders/CreateSalesOrder

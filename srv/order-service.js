@@ -9,16 +9,12 @@ class OrderService extends cds.ApplicationService {
         const { Orders } = this.entities;
         this.before("CREATE", Orders, async (req) => this.validateCustomerAndCreateOrder(req));
         this.on("checkOrderItemName", async (req) => this.checkOrderItemNameHandler(req));
-    
         this.on("changeOrderStatus", async (req) => this.changeOrderStatusHandler(req));
-    
-        this.on('OrderStatusChanged', async (data, req) => this.onOrderStatusChnaged(data,req));
+        this.on('OrderStatusChanged', async (req) => this.onOrderStatusChanged(req));
         return super.init();
     }
 
     async validateCustomerAndCreateOrder(req) {
-    
-        
         const { Customer } = cds.entities('my.customer')
         const { CustomerBupa } = this.remoteService.entities
         const {customer_ID} = req.data
@@ -32,14 +28,12 @@ class OrderService extends cds.ApplicationService {
         }
 
         const {name} = customerDetails
-        console.log(customerDetails)
         const result = await this.S4bupa.run(
           SELECT.from(CustomerBupa)
-            .where({ BPCustomerFullName: name })
+            .where({ name: name })
         );
         
         if(result.length == 0){
-          console.log("No User Found")
           req.error(400, `Customer with name "${name}" not found.`);
           return
         }
@@ -49,51 +43,33 @@ class OrderService extends cds.ApplicationService {
     
       }
     
-      /** Custom Action Handler */
-      async checkOrderItemNameHandler(req) {
-        const { itemName } = req.data; // Retrieve the itemName from the action input
-        console.log(`Checking order item name: ${itemName}`);
-    
-        // Example validation logic (replace with your own logic as needed)
-        if (!itemName || itemName.trim() === "") {
-          return false; // Return false if itemName is invalid
-        }
-    
-        // Simulate checking the item name against a database or business rule
-        const validItemNames = ["ItemA", "ItemB", "ItemC"]; // Example valid names
-        const isValid = validItemNames.includes(itemName);
-    
-        console.log(`Is item name valid? ${Customers}`);
-        return true; // Return the validation result
-      }
+   
     
       async changeOrderStatusHandler(req) {
-        const { orderId,status } = req.data; // Retrieve the status from the action input
+        const { orderId,status } = req.data;
         const { Order } = cds.entities('my.order')
         if (!status || status.trim() === "") {
-          // Return an error if the status is empty
-          throw new Error("Invalid status value.");
+          req.error(`Invalid status value.`);
+          return;
         }
-    
+        const allowedStatuses = ['Created', 'Processed', 'Delivered'];
+        if (!allowedStatuses.includes(status)) {
+          req.error(400,`Invalid status value. Allowed values are: ${allowedStatuses.join(', ')}`);  
+          return;
+        }
       
-        // Retrieve the order from the database based on the order ID
         const order = await cds.tx(req).run(SELECT.from(Order).where({ ID: orderId }));
     
         if (order.length === 0) {
            req.error(`Order with ID ${orderId} not found.`);
-           return;s
+           return;
           }
     
     
         const oldStatus = order[0].status;
         const newStatus = status;
-    
-    
-        // Update the order status
-        order[0].status = status; // Assuming "status" is a field in the "Orders" entity
-    
-        // Save the updated order
-        await cds.tx(req).run(UPDATE('my_customer_Order').set({ status }).where({ ID: orderId }));
+        order[0].status = status; 
+        await cds.tx(req).run(UPDATE(Order).set({ status }).where({ ID: orderId }));
     
         this.emit('OrderStatusChanged', {
           orderId: orderId,
@@ -102,30 +78,37 @@ class OrderService extends cds.ApplicationService {
           timeStamp: new Date().toISOString(),
         });
     
-        // Return the updated order
+        
         return { ...order[0], status: newStatus };
       }
 
-    async onOrderStatusChnaged(data,req){
-        const { orderId, oldStatus, newStatus, timeStamp } = data.data;
+      async onOrderStatusChanged(req) {
+        const { OrderStatusChangeLogs } = cds.entities('my.order');
+        const { orderId, oldStatus, newStatus, timeStamp } = req.data;
+    
         if (!orderId || !oldStatus || !newStatus || !timeStamp) {
-          console.error("Missing required fields for OrderStatusChangeLogs") 
-            return;
+            throw new Error('Missing required fields: orderId, oldStatus, newStatus, or timeStamp.');
         }
+    
+        const allowedStatuses = ['Created', 'Processed', 'Delivered'];
+        if (!allowedStatuses.includes(newStatus)) {
+            throw new Error(`Invalid status value. Allowed values are: ${allowedStatuses.join(', ')}`);
+        }
+    
         try {
             await INSERT.into(OrderStatusChangeLogs).entries({
-                ID: cds.utils.uuid(), // Generate a unique ID
-                orderId: orderId,
-                oldStatus: oldStatus,
-                newStatus: newStatus,
-                timeStamp: timeStamp,
+                ID: cds.utils.uuid(),
+                orderId,
+                oldStatus,
+                newStatus,
+                timeStamp,
             });
-            console.log('Log stored successfully in OrderStatusChangeLogs');
         } catch (error) {
-            console.error('Error storing log in OrderStatusChangeLogs:', error);
-            req.error(500, 'Failed to store the order status change log');
+            throw new Error('Failed to store the order status change log');
         }
     }
+    
+    
 }
 
 module.exports = OrderService

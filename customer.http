@@ -5,8 +5,8 @@ Content-Type: application/json
 Authorization: Basic manager:123
 
 {
-  "ID": "12",
-  "name": "Joydip",
+  "ID": "1",
+  "name": "Domestic Customer AU 1",
   "contact": "7980511342"
 }
 
