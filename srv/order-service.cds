@@ -7,8 +7,8 @@ service OrderService {
     
 entity Orders  as projection on my.Order;
 entity OrderItems  as projection on my.OrderItem;  
-@require:'order-manager'
-action changeOrderStatus(orderId:String,status : String(20)) returns Orders;
+@requires: 'order-manager'
+action changeOrderStatus(orderId: String, status: String(20)) returns Orders;
 entity OrderStatusChangeLogs as projection on my.OrderStatusChangeLogs;
 annotate Orders with @restrict: [
      {

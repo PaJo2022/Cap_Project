@@ -24,7 +24,7 @@
   },
   "scripts": {
     "start": "cds-serve",
-    "deploy:cf": "cf deploy mta_archives/CapProject_2.0.3.mtar",
+    "deploy:cf": "cf deploy mta_archives/CapProject_2.0.4.mtar",
     "create-auth-service": "cf create-service xsuaa application CapProject-auth -c xs-security.json",
     "delete-auth-service": "cf delete-service CapProject-auth",
     "generate-security-file": "cds compile srv/ --to xsuaa > xs-security.json"
