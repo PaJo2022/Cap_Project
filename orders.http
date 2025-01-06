@@ -3,15 +3,20 @@
 ### Create a new OrderItem
 POST http://localhost:4004/api/data/orders/OrderItems
 Content-Type: application/json
-Authorization: Basic system:
+Authorization: Basic manager:123
 
 {
-  "ID": "4",
+  "ID": "2",
   "productName": "Mobile",
-  "quantity": 20,
-  "unitPrice": 7500.00,
+  "quantity": 13,
+  "unitPrice": 50009.00,
   "order_ID": "1"
 }
+
+### GET All OrderItem
+GET http://localhost:4004/api/data/orders/OrderItems
+Content-Type: application/json
+Authorization: Basic manager:123
 
 
 ### Change Order Status

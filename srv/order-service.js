@@ -6,13 +6,123 @@ class OrderService extends cds.ApplicationService {
         this.S4SOrder = await cds.connect.to('API_SALES_ORDER_SRV');
         this.S4bupa = await cds.connect.to('API_BUSINESS_PARTNER');
         this.remoteService = await cds.connect.to('RemoteService');
-        const { Orders } = this.entities;
+        const { Orders,OrderItems } = this.entities;
         this.before("CREATE", Orders, async (req) => this.validateCustomerAndCreateOrder(req));
+        this.on("READ", Orders, async (req) => this.fetchOrderDetails(req));
+        this.on("READ", OrderItems, async (req) => this.fetchOrderItemDetails(req));
         this.on("checkOrderItemName", async (req) => this.checkOrderItemNameHandler(req));
         this.on("changeOrderStatus", async (req) => this.changeOrderStatusHandler(req));
         this.on('OrderStatusChanged', async (req) => this.onOrderStatusChanged(req));
         return super.init();
     }
+
+    async fetchOrderDetails(req) {
+      try {
+        const { Customer } = cds.entities('my.customer');
+        const { OrderItem } = cds.entities('my.order');
+    
+        let orders = await cds.tx(req).run(req.query);
+    
+        if (!Array.isArray(orders)) {
+          orders = orders ? [orders] : [];
+        }
+    
+        if (orders.length === 0) return orders;
+    
+        const orderIds = orders.map((order) => order.ID);
+    
+        const orderItems = await cds.tx(req).run(
+          SELECT.from(OrderItem).where({ order_ID: { in: orderIds } })
+        );
+    
+        const customerIds = [...new Set(orders.map((order) => order.customer_ID))];
+    
+        const customers = await cds.tx(req).run(
+          SELECT.from(Customer).where({ ID: { in: customerIds } })
+        );
+    
+        const formatter = new Intl.NumberFormat('en-IN', {
+          style: 'currency',
+          currency: 'INR',
+          minimumFractionDigits: 2,
+        });
+
+        const ordersWithDetails = orders.map((order) => {
+          const items = orderItems.filter((item) => item.order_ID === order.ID);
+          const totalCost = items.reduce(
+            (sum, item) => sum + item.quantity * item.unitPrice,
+            0
+          );
+    
+          order.items = items;
+          order.customer =
+            customers.find((customer) => customer.ID === order.customer_ID) || null;
+          order.totalAmount = formatter.format(totalCost);;
+    
+          return order;
+        });
+    
+        return ordersWithDetails;
+      } catch (error) {
+        req.error(500, 'Failed to fetch order details. Please try again later.');
+      }
+    }
+    
+
+    async fetchOrderItemDetails(req) {
+      try {
+        const { Customer } = cds.entities('my.customer');
+        const { Order } = cds.entities('my.order');
+    
+        
+        let orderItems = await cds.tx(req).run(req.query);
+    
+        
+        if (!Array.isArray(orderItems)) {
+          orderItems = orderItems ? [orderItems] : [];
+        }
+    
+        
+        if (orderItems.length === 0) return orderItems;
+    
+        
+        const orderIds = [...new Set(orderItems.map((item) => item.order_ID))];
+    
+        
+        const orders = await cds.tx(req).run(
+          SELECT.from(Order).where({ ID: { in: orderIds } })
+        );
+    
+        
+        const customerIds = [...new Set(orders.map((order) => order.customer_ID))];
+    
+        
+        const customers = await cds.tx(req).run(
+          SELECT.from(Customer).where({ ID: { in: customerIds } })
+        );
+
+  
+        const orderItemsWithDetails = orderItems.map((item) => {
+          const order = orders.find((o) => o.ID === item.order_ID) || null;
+          const customer =
+            order && order.customer_ID
+              ? customers.find((c) => c.ID === order.customer_ID) || null
+              : null;
+    
+          item.order = order;
+          item.customer = customer;
+          return item;
+        });
+    
+        return orderItemsWithDetails;
+      } catch (error) {
+       req.error(500,error);
+      }
+    }
+    
+    
+    
+    
 
     async validateCustomerAndCreateOrder(req) {
         const { Customer } = cds.entities('my.customer')
