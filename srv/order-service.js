@@ -67,8 +67,6 @@ class OrderService extends cds.ApplicationService {
         req.error(500, 'Failed to fetch order details. Please try again later.');
       }
     }
-    
-
     async fetchOrderItemDetails(req) {
       try {
         const { Customer } = cds.entities('my.customer');
@@ -119,11 +117,6 @@ class OrderService extends cds.ApplicationService {
        req.error(500,error);
       }
     }
-    
-    
-    
-    
-
     async validateCustomerAndCreateOrder(req) {
         const { Customer } = cds.entities('my.customer')
         const { CustomerBupa } = this.remoteService.entities
@@ -131,6 +124,11 @@ class OrderService extends cds.ApplicationService {
     
         const customerDetails = await  SELECT.one.from(Customer)
         .where({ ID: customer_ID })
+
+        if (!req.data || req.data.status !== 'Created') {
+          req.error(400, "Order status must be 'Created' to proceed.");
+          return;
+         }
     
         if (!customerDetails) {
           req.error(400, `No Customer Found.`)
@@ -152,46 +150,62 @@ class OrderService extends cds.ApplicationService {
         return false;
     
       }
-    
-   
-    
       async changeOrderStatusHandler(req) {
-        const { orderId,status } = req.data;
-        const { Order } = cds.entities('my.order')
+        const { orderId, status } = req.data;
+        const { Order } = cds.entities('my.order');
+    
+        // Validate status
         if (!status || status.trim() === "") {
-          req.error(`Invalid status value.`);
-          return;
+            req.error(400, "Invalid status value.");
+            return;
         }
+    
         const allowedStatuses = ['Created', 'Processed', 'Delivered'];
         if (!allowedStatuses.includes(status)) {
-          req.error(400,`Invalid status value. Allowed values are: ${allowedStatuses.join(', ')}`);  
-          return;
+            req.error(400, `Invalid status value. Allowed values are: ${allowedStatuses.join(', ')}`);
+            return;
         }
-      
+    
+        // Find the order
         const order = await cds.tx(req).run(SELECT.from(Order).where({ ID: orderId }));
     
         if (order.length === 0) {
-           req.error(`Order with ID ${orderId} not found.`);
-           return;
-          }
-    
+            req.error(404, `Order with ID ${orderId} not found.`);
+            return;
+        }
     
         const oldStatus = order[0].status;
-        const newStatus = status;
-        order[0].status = status; 
+    
+        // Check the valid transitions
+        if (oldStatus === 'Created' && status !== 'Processed') {
+            req.error(400, "Order can only be processed after being created.");
+            return;
+        }
+        if (oldStatus === 'Processed' && status !== 'Delivered') {
+            req.error(400, "Order can only be delivered after being processed.");
+            return;
+        }
+        if (oldStatus === 'Delivered') {
+            req.error(400, "Order status cannot be updated after delivery.");
+            return;
+        }
+    
+        // Update order status
+        order[0].status = status;
         await cds.tx(req).run(UPDATE(Order).set({ status }).where({ ID: orderId }));
     
+        // Emit event
         this.emit('OrderStatusChanged', {
-          orderId: orderId,
-          oldStatus,
-          newStatus,
-          timeStamp: new Date().toISOString(),
+            orderId: orderId,
+            oldStatus,
+            newStatus: status,
+            timeStamp: new Date().toISOString(),
         });
     
-        
-        return { ...order[0], status: newStatus };
-      }
-
+        // Return updated order
+        return { ...order[0], status };
+    }
+    
       async onOrderStatusChanged(req) {
         const { OrderStatusChangeLogs } = cds.entities('my.order');
         const { orderId, oldStatus, newStatus, timeStamp } = req.data;

@@ -16,7 +16,4 @@ annotate Customers with @restrict: [
         to: 'order-manager'
     }
 ];    
-
-
-  
 }
